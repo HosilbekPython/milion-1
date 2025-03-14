@@ -87,7 +87,7 @@ function Likes() {
               >
                 <button
                   onClick={() => confirmUnlike(product)}
-                  className="absolute z-50 top-2 right-2 text-yellow-400 text-xl"
+                  className="absolute z-0 top-2 right-2 text-yellow-400 text-xl"
                 >
                   {isLiked ? <FaHeart /> : <FaRegHeart />}
                 </button>

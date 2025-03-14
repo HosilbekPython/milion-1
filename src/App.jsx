@@ -7,9 +7,10 @@ import Store from "./pages/Store";
 import OrderHistory from "./pages/Order History"; // Ensure there are no spaces in file names
 import Browse from "./pages/Browse";
 import Likes from "./pages/Likes";
-import Cards from "./pages/Cards"; // Ensure correct casing in file names
+import Cards from "./pages/cards"; // Ensure correct casing in file names
 import Profile from "./pages/Profile";
 import Fulcontent from "./pages/Fulcontent";
+import Register from "./pages/register";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/likes" element={<Likes />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/full" element={<Fulcontent />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </Layout>
     </Router>
