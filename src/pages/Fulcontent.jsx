@@ -3,7 +3,8 @@ import { useParams, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { toast } from "react-hot-toast";
-
+import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
+import { useNavigate } from "react-router-dom";
 // Reytingni hisoblash algoritmi
 const calculateAverageRating = (reviews) => {
   if (!reviews || reviews.length === 0) return 0;
@@ -12,13 +13,14 @@ const calculateAverageRating = (reviews) => {
 };
 
 // Chegirmali narxni hisoblash
-const calculateDiscountPrice = (price, discountPercentage) => 
+const calculateDiscountPrice = (price, discountPercentage) =>
   (price - (price * discountPercentage) / 100).toFixed(2);
 
 // Aktsiya mavjudligini tekshirish
 const isOnSale = (price, discountedPrice) => price > discountedPrice;
 
 function FullProduct() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -47,6 +49,11 @@ function FullProduct() {
     }
   }, [id, product]);
 
+  // Check if the product is available before accessing its properties
+  if (loading) return <p className="text-center text-gray-500">⏳ Yuklanmoqda...</p>;
+  if (error) return <p className="text-center text-red-500">❌ Xatolik: {error}</p>;
+  if (!product) return <p className="text-center text-gray-500">Mahsulot topilmadi</p>;
+
   const averageRating = calculateAverageRating(product.reviews);
   const discountedPrice = calculateDiscountPrice(product.price, product.discountPercentage);
   const saleMessage = isOnSale(product.price, discountedPrice) ? "🚨 Limited time offer!" : "✅ In stock";
@@ -71,12 +78,16 @@ function FullProduct() {
     }
   };
 
-  if (loading) return <p className="text-center text-gray-500">⏳ Yuklanmoqda...</p>;
-  if (error) return <p className="text-center text-red-500">❌ Xatolik: {error}</p>;
-  if (!product) return <p className="text-center text-gray-500">Mahsulot topilmadi</p>;
-
   return (
     <div className="container mx-auto text-gray-900 p-4 mb-10 bg-gray-50 min-h-screen">
+           {/* Orqaga tugma */}
+           <button
+  onClick={() => navigate(-1)}
+  className="absolute bg-white top-4 left-4 flex items-center gap-2 text-gray-700 hover:text-gray-900 transition"
+>
+  <ArrowUturnLeftIcon className="h-6 w-6" />
+  <span className="text-sm font-semibold">Orqaga</span>
+</button>
       <h1 className="text-3xl font-bold text-center text-gray-900">{product.title}</h1>
 
       <div className="flex w-full flex-col lg:flex-row gap-6 mt-6">
@@ -149,14 +160,18 @@ function FullProduct() {
 
           <div className="mt-6">
             <h3 className="text-xl font-semibold">Reviews (Average Rating: {averageRating})</h3>
-            {product.reviews.map((review, index) => (
-              <div key={index} className="border-b py-2">
-                <div className="font-semibold">{review.reviewerName}</div>
-                <div className="text-sm text-gray-600">{new Date(review.date).toLocaleDateString()}</div>
-                <div className="text-sm">{review.comment}</div>
-                <div className="text-sm">Rating: {review.rating}</div>
-              </div>
-            ))}
+            {product.reviews && product.reviews.length > 0 ? (
+              product.reviews.map((review, index) => (
+                <div key={index} className="border-b py-2">
+                  <div className="font-semibold">{review.reviewerName}</div>
+                  <div className="text-sm text-gray-600">{new Date(review.date).toLocaleDateString()}</div>
+                  <div className="text-sm">{review.comment}</div>
+                  <div className="text-sm">Rating: {review.rating}</div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No reviews available.</p>
+            )}
           </div>
         </div>
       </div>

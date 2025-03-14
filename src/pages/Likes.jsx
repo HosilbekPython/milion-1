@@ -5,6 +5,17 @@ import axios from "axios";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+const SkeletonLoader = () => (
+  <div className=" rounded-lg shadow-sm overflow-hidden relative animate-pulse bg-gray-200">
+    <div className="w-full h-48 bg-gray-300"></div>
+    <div className="p-3">
+      <div className="h-6 bg-gray-400 mb-2"></div>
+      <div className="h-4 bg-gray-400 mb-2"></div>
+      <div className="h-4 bg-gray-400 mb-2 w-1/2"></div>
+    </div>
+  </div>
+);
+
 function Likes() {
   const dispatch = useDispatch();
   const likedProducts = useSelector((state) => state.likes.likedProducts);
@@ -13,6 +24,7 @@ function Likes() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     axios
       .get("https://dummyjson.com/products?limit=194")
@@ -42,15 +54,22 @@ function Likes() {
       setSelectedProduct(null);
     }
   };
+
   const handleNavi = (product) => {
     navigate("/full", { state: { product } });
   };
+
   return (
     <div className="p-4 text-gray-950">
       <h2 className="text-xl font-bold mb-3">Sevimli Mahsulotlar</h2>
 
       {loading ? (
-        <p>Yuklanmoqda...</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {/* Yuklanayotgan paytda skeletlar */}
+          {Array.from({ length: 8 }).map((_, index) => (
+            <SkeletonLoader key={index} />
+          ))}
+        </div>
       ) : likedItems.length === 0 ? (
         <p>Sevimli mahsulotlaringiz yo‘q</p>
       ) : (
@@ -73,17 +92,20 @@ function Likes() {
                   {isLiked ? <FaHeart /> : <FaRegHeart />}
                 </button>
                 <img
-                onClick={()=>{handleNavi(product)}}
-
+                  onClick={() => {
+                    handleNavi(product);
+                  }}
                   src={product.thumbnail}
                   alt={product.title}
                   className="rounded-md w-full h-40 object-cover"
                 />
 
-                <div 
-                onClick={()=>{handleNavi(product)}}
-                
-                className="flex justify-between items-end p-2">
+                <div
+                  onClick={() => {
+                    handleNavi(product);
+                  }}
+                  className="flex justify-between items-end p-2"
+                >
                   <div>
                     <h2 className="text-sm md:text-base lg:text-lg text-gray-700 font-semibold mt-2">
                       {product.title}

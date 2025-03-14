@@ -1,138 +1,149 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react"; // useState qo'shildi
 import { useDispatch, useSelector } from "react-redux";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { toggleLike } from "../redux/likeSlice"; // Redux slice faylini import qiling
+import { useNavigate } from "react-router-dom";
+import {
+  fetchProducts,
+  filterByCategory,
+  increaseLimit,
+} from "../redux/productSlice"; 
+import { addViewedProduct } from '../redux/productSliceHistory';
+import { toggleLike } from "../redux/likeSlice";
+import { FaHeart } from "react-icons/fa";
+import Mlogo from '../assets/mlogo.svg';
+
+const SkeletonLoader = () => (
+  <div className="border rounded-lg shadow-sm overflow-hidden relative animate-pulse bg-gray-200">
+    <div className="w-full h-48 bg-gray-300"></div>
+    <div className="p-3">
+      <div className="h-6 bg-gray-400 mb-2"></div>
+      <div className="h-4 bg-gray-400 mb-2"></div>
+      <div className="h-4 bg-gray-400 mb-2 w-1/2"></div>
+    </div>
+  </div>
+);
 
 function Home() {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [limit, setLimit] = useState(194);
-  const [uillimit, setUilimit] = useState(10);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const likedProducts = useSelector((state) => state.likes.likedProducts);
-
-  const categories = [...new Set(products.map((item) => item.category))];
-
-  const fetchProducts = () => {
-    setLoading(true);
-    axios
-      .get(`https://dummyjson.com/products?limit=${limit}`)
-      .then((response) => {
-        setProducts(response.data.products);
-        setFilteredProducts(response.data.products);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching products:", error);
-        setLoading(false);
-      });
+  const navigate = useNavigate();
+  const { products, loading, error } = useSelector((state) => state.products);
+  const { likedProducts } = useSelector((state) => state.likes);
+  
+  // Har bir kategoriya oid mahsulotlarni saqlash uchun state
+  const [categoryProducts, setCategoryProducts] = useState({});
+  const handleMoreClick = (category) => {
+    navigate("/browse", { state: { category } }); // Kategoriya bilan navigate qilish
   };
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [limit]);
-
-  const increaseLimit = () => {
-    setUilimit(limit);
-  };
+    // Mahsulotlarni kategoriya bo'yicha guruhlash
+    const groupedProducts = {};
+    products.forEach(product => {
+      if (!groupedProducts[product.category]) {
+        groupedProducts[product.category] = [];
+      }
+      groupedProducts[product.category].push(product);
+    });
+    setCategoryProducts(groupedProducts);
+  }, [products]);
 
   const handleCategoryClick = (category) => {
-    if (category === "Barchasi") {
-      setFilteredProducts(products);
-    } else {
-      setFilteredProducts(products.filter((product) => product.category === category));
-    }
+    dispatch(filterByCategory(category));
   };
 
   const handleNavi = (product) => {
+    dispatch(addViewedProduct(product));
     navigate("/full", { state: { product } });
   };
 
-  const SkeletonLoader = () => (
-    <div className="max-w-xs border rounded-lg shadow-lg animate-pulse">
-      <div className="h-48 bg-gray-300 rounded-md"></div>
-      <div className="p-2">
-        <div className="h-4 bg-gray-300 rounded-md mb-2"></div>
-        <div className="h-4 bg-gray-300 rounded-md mb-2"></div>
-        <div className="h-4 bg-gray-300 rounded-md mb-2"></div>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="mx-auto">
-      <ul className="list-none flex overflow-x-auto whitespace-nowrap gap-3 p-2">
-        <li
-          className="text-gray-700 font-medium bg-gray-200 px-3 py-1 rounded-lg cursor-pointer"
-          onClick={() => handleCategoryClick("Barchasi")}
-        >
-          Barchasi
-        </li>
-        {categories.map((category, index) => (
-          <li
-            key={index}
-            className="text-gray-700 font-medium bg-gray-200 px-3 py-1 rounded-lg cursor-pointer"
-            onClick={() => handleCategoryClick(category)}
-          >
-            {category}
-          </li>
-        ))}
-      </ul>
+    <div className="container mx-auto text-gray-900 mb-13">
+      <h1 className="text-3xl text-gray-950 py-5">Mahsulotlar</h1>
 
-      <h2 className="text-lg font-medium mb-2 text-gray-800 text-center">Mahsulotlar</h2>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1">
-        {loading
-          ? Array.from({ length: uillimit }).map((_, index) => <SkeletonLoader key={index} />)
-          : filteredProducts.slice(0, uillimit).map((product) => {
-              const discountedPrice = (product.price * (1 - product.discountPercentage / 100)).toFixed(2);
-              const isLiked = likedProducts.includes(product.id); // Liked statusini tekshiramiz
-              return (
-                <div key={product.id} className="relative max-w-xs border rounded-lg shadow-lg cursor-pointer">
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {/* Yuklanayotgan paytda skeletlar */}
+          {Array.from({ length: 10 }).map((_, index) => (
+            <SkeletonLoader key={index} />
+          ))}
+        </div>
+      ) : error ? (
+        <p className="text-center text-red-500">Xatolik: {error}</p>
+      ) : (
+        Object.keys(categoryProducts).map((category) => (
+          <div key={category} className="mt-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">{category}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {categoryProducts[category].slice(0, 10).map((product) => (
+                <div
+                  key={product.id}
+                  className="rounded-lg shadow-sm overflow-hidden relative"
+                >
                   <button
                     onClick={() => dispatch(toggleLike(product.id))}
-                    className="absolute z-50 top-2 right-2 text-yellow-400 text-xl"
+                    className="absolute top-2 right-2 text-xl text-red-500"
                   >
-                    {isLiked ? <FaHeart /> : <FaRegHeart />}
+                    <FaHeart
+                      className={
+                        likedProducts.includes(product.id)
+                          ? "text-red-600"
+                          : "text-gray-400"
+                      }
+                    />
                   </button>
-                  <img onClick={()=>{handleNavi(product)}} src={product.thumbnail} alt={product.title} className="rounded-md" />
-
-                  <div onClick={()=>{handleNavi(product)}}  className="flex justify-between items-end p-2">
-                    <div>
-                      <h2 className="text-sm md:text-base lg:text-lg text-gray-700 font-semibold mt-2">
+                  <img
+                    src={product.thumbnail}
+                    alt={product.title}
+                    className="w-full h-48 object-cover cursor-pointer"
+                    onClick={() => handleNavi(product)}
+                  />
+                  <div
+                    onClick={() => handleNavi(product)}
+                    className="p-3"
+                  >
+                    <div className="flex justify-between items-end">
+                      <h3 className="text-lg text-gray-900 font-semibold">
                         {product.title}
-                      </h2>
-                      <p className="text-gray-500 text-xs md:text-sm lg:text-base">{product.category}</p>
-                      <p className="text-gray-700 text-xs md:text-sm lg:text-base">{product.brand}</p>
-                      <div className="mt-1">
-                        <p className="text-gray-400 line-through text-xs md:text-sm lg:text-base">${product.price}</p>
-                        <p className="text-green-700 font-semibold text-sm md:text-base lg:text-lg">${discountedPrice}</p>
-                      </div>
+                      </h3>
                     </div>
-                    <div className="flex items-center mt-1">
-                      {[...Array(Math.round(product.rating))].map((_, i) => (
-                        <span key={i} className="text-yellow-500 text-xs md:text-sm lg:text-base">
-                          ★
-                        </span>
-                      ))}
+                    <p className="text-gray-500 line-through text-sm">{product.price}$</p>
+                    <p className="text-green-600 font-semibold">
+                      $
+                      {(
+                        product.price *
+                        (1 - product.discountPercentage / 100)
+                      ).toFixed(2)}
+                    </p>
+
+                    <div className="mt-3 flex justify-between items-center">
+                      <div className='rounded-full bg-gray-900'>
+                        <img src={Mlogo} className='w-5' alt="" />
+                      </div>
+                      <div className="flex mt-2">
+                        {[...Array(Math.round(product.rating))].map((_, index) => (
+                          <span key={index} className="text-yellow-500 text-sm">
+                            ★
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-      </div>
-
-      <button
-        onClick={increaseLimit}
-        className="bg-blue-600 text-white px-2 my-10 rounded mb-40 block mx-auto text-sm hover:bg-blue-700 transition"
-      >
-        Yana 10 ta qo‘shish
-      </button>
+              ))}
+            </div>
+            <div className="text-center mt-4">
+            <button
+    onClick={() => handleMoreClick(category)} // Kategoriya bilan navigate qilish
+    className="px-6 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
+  >
+    Ko'proq ko‘rish
+  </button>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }

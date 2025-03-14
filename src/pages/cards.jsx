@@ -8,12 +8,16 @@ import {
 import { toggleLike } from "../redux/likeSlice";
 import { FaHeart, FaRegHeart, FaTrash, FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react"; // Import useState
 
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cartItems = useSelector((state) => state.cart.cartItems);
   const likedProducts = useSelector((state) => state.likes.likedProducts) || [];
+  
+  // Create state for feedback messages
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const calculateTotalPrice = () => {
     return cartItems
@@ -29,19 +33,31 @@ const Cart = () => {
   const handleRemoveItem = (itemId) => {
     if (window.confirm("Mahsulotni savatchadan o‘chirishni istaysizmi?")) {
       dispatch(removeFromCart(itemId));
+      setFeedbackMessage(""); // Clear feedback message
     }
   };
 
   const handleClearCart = () => {
     if (window.confirm("Savatchani tozalashni istaysizmi?")) {
       dispatch(clearCart());
+      setFeedbackMessage(""); // Clear feedback message
+    }
+  };
+
+  const handleAddToCart = (item) => {
+    const itemInCart = cartItems.find(cartItem => cartItem.id === item.id);
+    if (itemInCart) {
+      setFeedbackMessage("Mahsulot allaqachon savatchada.");
+    } else {
+      dispatch(addToCart({ ...item, quantity: 1 }));
+      setFeedbackMessage("Mahsulot savatchaga qo'shildi.");
     }
   };
 
   return (
     <div className="p-4 flex flex-col lg:flex-row w-full h-full gap-6">
       <div className="w-full">
-        <h2 className="text-xl font-bold mb-4">Savatcha</h2>
+        <h2 className="text-xl text-gray-900 font-bold mb-4">Savatcha</h2>
 
         {cartItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full w-full">
@@ -93,9 +109,7 @@ const Cart = () => {
                       <span className="text-lg">{item.quantity}</span>
                       <button
                         className="px-3 py-1 bg-gray-300 rounded-md"
-                        onClick={() =>
-                          dispatch(addToCart({ ...item, quantity: 1 }))
-                        }
+                        onClick={() => handleAddToCart(item)} // Use the new function
                       >
                         +
                       </button>
@@ -120,6 +134,11 @@ const Cart = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+        {feedbackMessage && (
+          <div className="mt-4 p-2 bg-green-100 text-green-700 rounded-md">
+            {feedbackMessage}
           </div>
         )}
       </div>

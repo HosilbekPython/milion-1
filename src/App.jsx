@@ -1,23 +1,23 @@
 import React from "react";
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast"; // Import Toaster
 import Layout from "./Layout/Layout";
 import Home from "./pages/Home";
 import Store from "./pages/Store";
-import OrderHistory from "./pages/Order History";
+import OrderHistory from "./pages/Order History"; // Ensure there are no spaces in file names
 import Browse from "./pages/Browse";
 import Likes from "./pages/Likes";
-import Cards from "./pages/cards";
+import Cards from "./pages/Cards"; // Ensure correct casing in file names
 import Profile from "./pages/Profile";
 import Fulcontent from "./pages/Fulcontent";
 
 function App() {
- 
   return (
     <Router>
-      <Layout >
+      <Toaster /> {/* Add Toaster here to enable toast notifications */}
+      <Layout>
         <Routes>
-          <Route path="/" element={<Home  />} />
+          <Route path="/" element={<Home />} />
           <Route path="/store" element={<Store />} />
           <Route path="/order" element={<OrderHistory />} />
           <Route path="/browse" element={<Browse />} />
