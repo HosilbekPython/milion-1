@@ -106,11 +106,11 @@ function Home() {
         Object.keys(categoryProducts).map((category) => (
           <div key={category} className="mt-8" id={category}>
             <h2 className="text-2xl font-bold text-gray-800 mb-3">{category}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid justify-between grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {categoryProducts[category].slice(0, 10).map((product) => (
                 <div
                   key={product.id}
-                  className="rounded-lg shadow-sm overflow-hidden relative"
+                  className="rounded-lg flex flex-col  justify-between items-start shadow-sm overflow-hidden relative"
                 >
                   {/* 📌 Yurak tugmasi - Like toggle */}
                   <button
@@ -155,7 +155,7 @@ function Home() {
 
                     {/* 📌 Logo va reyting */}
                     <div className="mt-3 flex justify-between items-center">
-                      <div className='rounded-full bg-gray-900'>
+                      <div className='rounded-full p-0.5 bg-gray-900'>
                         <img src={Mlogo} className='w-5' alt="" />
                       </div>
                       <div className="flex mt-2">

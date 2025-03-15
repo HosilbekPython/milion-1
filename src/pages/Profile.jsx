@@ -1,64 +1,79 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Profile() {
+function Register() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+    address: "",
+    birthDate: "",
+    profileImage: "",
+  });
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
-    } else {
-      navigate("/register");
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (
+      !formData.fullName ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword ||
+      !formData.phone ||
+      !formData.address ||
+      !formData.birthDate
+    ) {
+      setError("Barcha maydonlarni to‘ldiring!");
+      return;
     }
-  }, [navigate]);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Parollar mos kelmadi!");
+      return;
+    }
+
+    // 📌 Ma’lumotlarni LocalStorage-ga saqlash
+    localStorage.setItem("user", JSON.stringify(formData));
+
+    navigate("/profile"); // Profil sahifasiga yo‘naltirish
+  };
 
   return (
-    <div className="flex justify-center items-start min-h-screen bg-gradient-to-r ">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md text-gray-900">
-        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6">Profil</h2>
+    <div className="flex text-gray-900 justify-center items-center min-h-screen bg-gray-100">
+      <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
+        <h2 className="text-2xl font-bold text-center mb-6">Ro‘yxatdan o‘tish</h2>
 
-        {user ? (
-          <div className="">
-            <div className="relative inline-block mb-4">
-              <img
-                src={user.profileImage}
-                alt="Profil rasmi"
-                className="w-28 h-28 rounded-full border-4 border-indigo-500 shadow-lg"
-              />
-            </div>
-            <h3 className="text-2xl font-semibold text-gray-800">{user.fullName}</h3>
-            <p className="text-gray-600 mb-4">{user.email}</p>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-            <div className="bg-gray-100 p-4 rounded-lg shadow-inner">
-              <p className="text-lg">
-                📞 <span className="font-semibold">{user.phone}</span>
-              </p>
-              <p className="text-lg">
-                📍 <span className="font-semibold">{user.address}</span>
-              </p>
-              <p className="text-lg">
-                🎂 <span className="font-semibold">{user.birthDate}</span>
-              </p>
-            </div>
+        <form onSubmit={handleSubmit}>
+          <input type="text" name="fullName" placeholder="To‘liq ism" value={formData.fullName} onChange={handleChange} className="w-full mb-2 px-3 py-2 border rounded-lg" required />
+          <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="w-full mb-2 px-3 py-2 border rounded-lg" required />
+          <input type="password" name="password" placeholder="Parol" value={formData.password} onChange={handleChange} className="w-full mb-2 px-3 py-2 border rounded-lg" required />
+          <input type="password" name="confirmPassword" placeholder="Parolni tasdiqlang" value={formData.confirmPassword} onChange={handleChange} className="w-full mb-2 px-3 py-2 border rounded-lg" required />
+          <input type="text" name="phone" placeholder="Telefon raqami" value={formData.phone} onChange={handleChange} className="w-full mb-2 px-3 py-2 border rounded-lg" required />
+          <input type="text" name="address" placeholder="Manzil" value={formData.address} onChange={handleChange} className="w-full mb-2 px-3 py-2 border rounded-lg" required />
+          <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} className="w-full mb-2 px-3 py-2 border rounded-lg" required />
+          <input type="text" name="profileImage" placeholder="Profil rasmi URL" value={formData.profileImage} onChange={handleChange} className="w-full mb-2 px-3 py-2 border rounded-lg" />
 
-            <button
-              onClick={() => {
-                localStorage.removeItem("user");
-                navigate("/register");
-              }}
-              className="mt-6 bg-red-500 text-white py-2 px-6 rounded-lg hover:bg-red-600 transition duration-300 shadow-md"
-            >
-              Chiqish
-            </button>
-          </div>
-        ) : (
-          <p className="text-center text-white text-lg">Ma’lumot yuklanmoqda...</p>
-        )}
+          <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">
+            Ro‘yxatdan o‘tish
+          </button>
+        </form>
+
+        <p className="text-center text-gray-600 mt-4">
+          Akkauntingiz bormi? <span className="text-blue-500 cursor-pointer" onClick={() => navigate("/login")}>Kirish</span>
+        </p>
       </div>
     </div>
   );
 }
 
-export default Profile;
+export default Register;

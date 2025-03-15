@@ -87,7 +87,7 @@ function FullProduct() {
   };
 
   return (
-    <div className="container mx-auto text-gray-900 p-4 mb-10 bg-gray-50 min-h-screen">
+    <div className="container mx-auto text-gray-900 p-4 mb-15 bg-gray-50 min-h-screen">
       {/* Orqaga tugma */}
       <button
         onClick={() => navigate(-1)}

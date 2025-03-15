@@ -15,7 +15,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const cartItems = useSelector((state) => state.cart.cartItems);
   const likedProducts = useSelector((state) => state.likes.likedProducts) || [];
-  
+
   // Create state for feedback messages
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
@@ -45,7 +45,7 @@ const Cart = () => {
   };
 
   const handleAddToCart = (item) => {
-    const itemInCart = cartItems.find(cartItem => cartItem.id === item.id);
+    const itemInCart = cartItems.find((cartItem) => cartItem.id === item.id);
     if (itemInCart) {
       setFeedbackMessage("Mahsulot allaqachon savatchada.");
     } else {
@@ -55,7 +55,7 @@ const Cart = () => {
   };
 
   return (
-    <div className="p-4 flex flex-col lg:flex-row w-full h-full gap-6">
+    <div className="p-4 flex flex-col mb-15 lg:flex-row w-full h-full gap-6">
       <div className="w-full">
         <h2 className="text-xl text-gray-900 font-bold mb-4">Savatcha</h2>
 
@@ -109,7 +109,11 @@ const Cart = () => {
                       <span className="text-lg">{item.quantity}</span>
                       <button
                         className="px-3 py-1 bg-gray-300 rounded-md"
-                        onClick={() => handleAddToCart(item)} // Use the new function
+                        onClick={() =>
+                          dispatch(
+                            addToCart({ ...item, quantity: item.quantity + 1 })
+                          )
+                        }
                       >
                         +
                       </button>
@@ -146,7 +150,7 @@ const Cart = () => {
       {cartItems.length > 0 && (
         <div className="w-full lg:w-1/3 bg-gray-50 p-4 rounded-lg shadow-md">
           <p className="text-xl font-semibold">
-            Umumiy narx: {" "}
+            Umumiy narx:{" "}
             <span className="text-gray-500">{calculateTotalPrice()} so‘m</span>
           </p>
           <button
