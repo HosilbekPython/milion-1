@@ -27,7 +27,6 @@ function Layout({ children }) {
     (product.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
     (product.category?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
-     console.log(filteredProducts);
      
   const handleNavi = (product) => {
     navigate("/full", { state: { product } });
@@ -70,7 +69,7 @@ function Layout({ children }) {
   }, [products]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col z-50 min-h-screen bg-gray-100">
       <header className="bg-gray-800 fixed top-0 left-0 w-full text-white p-1 flex flex-col items-center shadow-lg z-50">
         <div className="flex w-full max-w-7xl justify-between items-center">
           <Link to="/">
