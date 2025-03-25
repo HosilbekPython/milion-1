@@ -20,6 +20,10 @@ const SkeletonLoader = () => (
       <div className="h-4 bg-gray-400 mb-2 w-1/2"></div>
     </div>
   </div>
+
+
+
+
 );
 
 function Browse() {
